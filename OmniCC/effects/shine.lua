@@ -23,9 +23,8 @@ local function createShineAnimation(parent)
 	group:SetLooping('NONE')
 
 	local init = group:CreateAnimation('Alpha')
-	init:SetFromAlpha(1)
 	init:SetDuration(0)
-	init:SetToAlpha(0)
+	init:SetChange(0)
 	init:SetOrder(0)
 
 	local grow = group:CreateAnimation('Scale')
@@ -36,8 +35,7 @@ local function createShineAnimation(parent)
 
 	local brighten = group:CreateAnimation('Alpha')
 	brighten:SetDuration(SHINE_DURATION / 2)
-	brighten:SetFromAlpha(0)
-	brighten:SetToAlpha(1)
+	brighten:SetChange(1)
 	brighten:SetOrder(1)
 
 	local shrink = group:CreateAnimation('Scale')
@@ -48,8 +46,7 @@ local function createShineAnimation(parent)
 
 	local fade = group:CreateAnimation('Alpha')
 	fade:SetDuration(SHINE_DURATION / 2)
-	fade:SetFromAlpha(1)
-	fade:SetToAlpha(0)
+	fade:SetChange(-1)
 	fade:SetOrder(2)
 
 	return group

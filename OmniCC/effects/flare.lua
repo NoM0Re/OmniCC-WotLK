@@ -23,9 +23,8 @@ local function createFlareAnimation(parent)
 	animation:SetLooping('NONE')
 
 	local init = animation:CreateAnimation('Alpha')
-	init:SetFromAlpha(1)
 	init:SetDuration(0)
-	init:SetToAlpha(0)
+	init:SetChange(-1)
 	init:SetOrder(0)
 
 	local grow = animation:CreateAnimation('Scale')
@@ -36,8 +35,7 @@ local function createFlareAnimation(parent)
 
 	local brighten = animation:CreateAnimation('Alpha')
 	brighten:SetDuration(FLARE_DURATION / 2)
-	brighten:SetFromAlpha(0)
-	brighten:SetToAlpha(1)
+	brighten:SetChange(1)
 	brighten:SetOrder(1)
 
 	local shrink = animation:CreateAnimation('Scale')
@@ -48,8 +46,7 @@ local function createFlareAnimation(parent)
 
 	local fade = animation:CreateAnimation('Alpha')
 	fade:SetDuration(FLARE_DURATION / 2)
-	fade:SetFromAlpha(1)
-	fade:SetToAlpha(0)
+	fade:SetChange(-1)
 	fade:SetOrder(2)
 
 	return animation

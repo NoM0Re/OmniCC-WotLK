@@ -2,21 +2,31 @@ local AddonName, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 local DEFAULT_DURATION = 30
+local QUESTION = "Interface\\Icons\\INV_Misc_QuestionMark"
 
 local function getRandomIcon()
-    if type(GetSpellBookItemTexture) == "function" then
-        local _, _, offset, numSlots = GetSpellTabInfo(GetNumSpellTabs())
-        return GetSpellBookItemTexture(math.random(offset + numSlots - 1), 'player')
+    local numTabs = GetNumSpellTabs()
+    if not numTabs or numTabs == 0 then
+        return QUESTION
     end
 
-    local i = C_SpellBook.GetSpellBookSkillLineInfo(C_SpellBook.GetNumSpellBookSkillLines())
-    local offset = i.itemIndexOffset
-    local numSlots = i.numSpellBookItems
-    return C_SpellBook.GetSpellBookItemTexture(math.random(offset + numSlots - 1), Enum.SpellBookSpellBank.Player)
+    local _, _, offset, numSlots = GetSpellTabInfo(numTabs)
+    if not numSlots or numSlots <= 0 then
+        return QUESTION
+    end
+
+    for _ = 1, 12 do -- try max 12 times to get a valid icon
+        local icon = GetSpellTexture(math.random(offset + 1, offset + numSlots), BOOKTYPE_SPELL or "spell")
+        if icon then
+            return icon
+        end
+    end
+
+    return QUESTION
 end
 
 -- preview dialog
-local PreviewDialog = CreateFrame("Frame", AddonName .. "PreviewDialog", UIParent, "UIPanelDialogTemplate")
+local PreviewDialog = CreateFrame("Frame", AddonName .. "PreviewDialog", UIParent, "UIPanelDialogTemplate") -- port this XML later
 
 PreviewDialog:Hide()
 PreviewDialog:ClearAllPoints()
@@ -47,7 +57,8 @@ PreviewDialog:SetScript(
 )
 
 -- title region
-local tr = CreateFrame("Frame", nil, PreviewDialog, "TitleDragAreaTemplate")
+local tr = CreateFrame("Frame", nil, PreviewDialog)
+OmniCC.Templates["TitleDragAreaTemplate"](tr)
 tr:SetAllPoints(PreviewDialog:GetName() .. "TitleBG")
 
 -- title text
@@ -79,7 +90,6 @@ cooldown:SetAllPoints(icon)
 cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 cooldown:SetSwipeColor(0, 0, 0)
 cooldown:SetDrawEdge(false)
-cooldown:SetHideCountdownNumbers(true)
 cooldown:SetScript(
     "OnCooldownDone",
     function()
@@ -97,7 +107,8 @@ local editBoxText = container:CreateFontString(nil, "ARTWORK", "GameFontNormalLa
 editBoxText:SetText(L.Duration)
 editBoxText:SetPoint("TOP", icon, "BOTTOM", 0, -2)
 
-local editBox = CreateFrame('EditBox', "$parentDurationInput", container, "NumericInputSpinnerTemplate")
+local editBox = CreateFrame('EditBox', "$parentDurationInput", container)
+OmniCC.Templates["NumericInputSpinnerTemplate"](editBox)
 editBox:SetAutoFocus(false)
 editBox:SetPoint("TOP", editBoxText, "BOTTOM", 4, -2)
 editBox:SetWidth(container:GetWidth() - 54)

@@ -1,5 +1,6 @@
 -- A cooldown text display
 local _, Addon = ...
+local AceTimer = LibStub('AceTimer-3.0')
 
 -- the expected size of an icon
 local ICON_SIZE = 36
@@ -65,7 +66,7 @@ function Display:UpdateSize()
     end
 
     self.updatingSize = true
-    C_Timer.After(GetTickTime(), self.updateSize)
+    AceTimer:ScheduleTimer(self.updateSize, 0.1)
 end
 
 ---@param timer OmniCCTimer

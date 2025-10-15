@@ -17,25 +17,26 @@ animationGroup:SetLooping("NONE")
 animationGroup:SetScript("OnFinished", function() AlertFrame:Hide() end)
 AlertFrame.animationGroup = animationGroup
 
-local function newAnim(type, order, from, to)
-	local anim = AlertFrame.animationGroup:CreateAnimation(type)
-	anim:SetDuration(0.3)
-	anim:SetOrder(order)
+local function newAnim(type, order, dur, change)
+    local anim = AlertFrame.animationGroup:CreateAnimation(type)
+    anim:SetOrder(order)
+    anim:SetDuration(dur or 0)
 
-	if type == "Scale" then
-		anim:SetOrigin("CENTER", 0, 0)
-		anim:SetScale(from, from)
-	else
-		anim:SetFromAlpha(from)
-		anim:SetToAlpha(to)
-	end
+    if type == "Scale" then
+        anim:SetOrigin("CENTER", 0, 0)
+        anim:SetScale(change, change)
+    elseif type == "Alpha" then
+        anim:SetChange(change)
+    end
+    return anim
 end
 
-newAnim("Scale", 1, 2.5)
-newAnim("Alpha", 1, 0, .7)
+newAnim("Scale", 1, 0.3 , 2.5)
+newAnim("Alpha", 1, 0,     -1) -- transparent
+newAnim("Alpha", 1, 0.3,  0.7) -- 70% opaque
 
-newAnim("Scale", 2, -2.5)
-newAnim("Alpha", 2, .7, 0)
+newAnim("Scale", 2, 0.3,    0)
+newAnim("Alpha", 2, 0.3,   -1) -- transparent
 
 local AlertEffect = Addon.FX:Create("alert", L.Alert, L.AlertTip)
 

@@ -180,12 +180,6 @@ function Cooldown:GetKind()
         return 'default'
     end
 
-    ---@type Frame|{ chargeCooldown: Cooldown? }?
-    local parent = self:GetParent()
-    if parent and parent.chargeCooldown == self then
-        return 'charge'
-    end
-
     return 'default'
 end
 
@@ -207,21 +201,7 @@ function Cooldown:Initialize()
 
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
-        self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
-
-        -- this is a hack to make sure that text for charge cooldowns can appear
-        -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
-        -- frame level
-        ---@type Frame|{ chargeCooldown: Cooldown?, cooldown: Cooldown? }?
-        local parent = self:GetParent()
-
-        if parent and parent.chargeCooldown == self then
-            local cooldown = parent.cooldown
-            if cooldown then
-                self:SetFrameStrata(cooldown:GetFrameStrata())
-                self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
-            end
-        end
+        --self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
 
         cooldowns[self] = true
     end
@@ -261,7 +241,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:UpdateText()
-    if self._occ_show and (not self:IsForbidden()) and self:IsVisible() then
+    if self._occ_show and self:IsVisible() then
         Cooldown.ShowText(self)
     else
         Cooldown.HideText(self)
@@ -315,7 +295,7 @@ function Cooldown:Refresh(force)
 
     Cooldown.Initialize(self)
 
-    local start, duration = self:GetCooldownTimes()
+    local start, duration = self._occ_start or 0, self._occ_duration or 0
     if start == 0 or duration == 0 then
         Cooldown.SetTimer(self, 0, 0)
     else
@@ -381,7 +361,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:OnCooldownDone()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -392,7 +372,7 @@ end
 ---@param start number
 ---@param duration number
 function Cooldown:OnSetCooldown(start, duration)
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -401,20 +381,8 @@ function Cooldown:OnSetCooldown(start, duration)
 end
 
 ---@param self OmniCCCooldown
----@param duration number
----@param modRate number?
-function Cooldown:OnSetCooldownDuration(duration)
-    if self.noCooldownCount or self:IsForbidden() then
-        return
-    end
-
-    Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, self:GetCooldownTimes() / 1000, duration)
-end
-
----@param self OmniCCCooldown
 function Cooldown:SetDisplayAsPercentage()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -423,7 +391,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:OnVisibilityUpdated()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -474,11 +442,7 @@ end
 
 -- misc
 function Cooldown.SetupHooks()
-    local cooldown_mt = getmetatable(ActionButton1Cooldown).__index
-    hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
-    hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
-    hooksecurefunc(cooldown_mt, 'Clear', Cooldown.OnClear)
-    hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
+    hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', Cooldown.OnSetCooldown)
 end
 
 ---@param method string

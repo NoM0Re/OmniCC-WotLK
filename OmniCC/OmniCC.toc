@@ -18,13 +18,14 @@
 ## Category-ruRU: Бой
 ## Category-zhCN: 战斗
 ## Category-zhTW: 戰鬥
-## Version: @project-version@
+## Version: 11.2.7
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
 
 embeds.xml
 localization\localization.xml
 main.lua
+templates.lua
 core\core.xml
 settings\settings.xml
 effects\effects.xml

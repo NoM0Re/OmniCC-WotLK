@@ -477,7 +477,7 @@ local function addThemeOptions(owner, theme, id)
             preview = {
                 type = 'execute',
                 order = 9000,
-                name = L.Preview,
+                name = "Preview",
                 func = function()
                     Addon.PreviewDialog:SetTheme(theme)
                 end

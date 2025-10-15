@@ -1,8 +1,6 @@
 local AddonName, Addon = ...
 local OmniCC = _G.OmniCC
 
-local function nop(_, _) end
-
 local function Clamp(value, min, max)
   if value > max then
     return max
@@ -24,7 +22,7 @@ OmniCC.Templates = {
   ["UIPanelCloseButton"] = function(frame)
     local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     close:SetSize(24, 24)
-    close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+    close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -4)
     close:SetFrameLevel(128)
     frame.CloseButton = close
     close:SetNormalTexture(format("Interface\\AddOns\\%s\\media\\redbutton2x", AddonName))
@@ -89,7 +87,7 @@ OmniCC.Templates = {
       EditBox_HighlightText(self)
     end)
   end,
-
+  --[[
   ["NumericInputBoxTemplate"] = function(frame)
     OmniCC.Templates["InputBoxTemplate"](frame)
     frame:SetNumeric(true)
@@ -115,7 +113,7 @@ OmniCC.Templates = {
       EditBox_ClearFocus(self)
     end)
   end,
-
+  ]]
   ["NumericInputSpinnerTemplate"] = function(frame)
     OmniCC.Templates["InputBoxTemplate"](frame)
     frame:SetMaxLetters(3)
@@ -195,21 +193,15 @@ OmniCC.Templates = {
     end)
 
     -- Mouse wheel catcher
-    local wheel = CreateFrame("Frame", nil, frame)
-    wheel:EnableMouse(true)
-    wheel:SetAllPoints()
-    frame.MouseWheelCatcher = wheel
-
-    wheel:SetScript("OnMouseWheel", function(self, delta)
-      if self:GetParent():IsEnabled() then
-        local amount = IsShiftKeyDown() and 10 or 1
-        if delta > 0 then
-          self:GetParent():Increment(amount)
-        else
-          self:GetParent():Decrement(amount)
-        end
-        self:GetParent():ClearFocus()
+    frame:EnableMouseWheel(true)
+    frame:SetScript("OnMouseWheel", function(self, delta)
+      local amount = IsShiftKeyDown() and 10 or 1
+      if delta > 0 then
+        self:Increment(amount)
+      else
+        self:Decrement(amount)
       end
+      self:ClearFocus()
     end)
 
     -- Scripts
@@ -221,14 +213,12 @@ OmniCC.Templates = {
     end)
 
     -- Fontstring
-    local fs = frame:CreateFontString(nil, "ARTWORK", "ChatFontNormal")
-    frame:SetFontString(fs)
+    frame:SetFontObject("ChatFontNormal")
 
     -- Mixin
     local MAX_TIME_BETWEEN_CHANGES_SEC = .5
     local MIN_TIME_BETWEEN_CHANGES_SEC = .075
     local TIME_TO_REACH_MAX_SEC = 3
-    local EditBox_SetEnabled = getmetatable(frame).__index.SetEnabled
 
     function frame:SetValue(value)
       local newValue = Clamp(value, self.min or -math.huge, self.max or math.huge)
@@ -268,20 +258,6 @@ OmniCC.Templates = {
 
     function frame:Decrement(amount)
       self:SetValue(self:GetValue() - (amount or 1))
-    end
-
-    function frame:SetEnabled(enable)
-      self.IncrementButton:SetEnabled(enable)
-      self.DecrementButton:SetEnabled(enable)
-      EditBox_SetEnabled(self, enable)
-    end
-
-    function frame:Enable()
-      self:SetEnabled(true)
-    end
-
-    function frame:Disable()
-      self:SetEnabled(false)
     end
 
     function frame:OnTextChanged()

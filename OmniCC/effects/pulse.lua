@@ -9,7 +9,7 @@ local PulseEffect = Addon.FX:Create("pulse", L.Pulse, L.PulseTip)
 
 function PulseEffect:Run(cooldown)
 	local parent = cooldown:GetParent()
-	if (not parent) or parent:IsForbidden() then
+	if not parent then
 		return
 	end
 

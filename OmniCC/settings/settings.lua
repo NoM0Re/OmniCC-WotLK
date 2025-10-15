@@ -154,8 +154,8 @@ function Addon:UpgradeDB()
     end
 
     local addonVersion = self.db.global.addonVersion
-    if addonVersion ~= C_AddOns.GetAddOnMetadata(AddonName, 'Version') then
-        self.db.global.addonVersion = C_AddOns.GetAddOnMetadata(AddonName, 'Version')
+    if addonVersion ~= GetAddOnMetadata(AddonName, 'Version') then
+        self.db.global.addonVersion = GetAddOnMetadata(AddonName, 'Version')
     end
 end
 

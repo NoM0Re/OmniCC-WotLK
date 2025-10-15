@@ -6,6 +6,12 @@ local AceTimer = LibStub('AceTimer-3.0')
 local ICON_SIZE = 36
 local DEFAULT_STATE = 'seconds'
 
+function Round(value)
+	if value < 0 then
+		return ceil(value - .5);
+	end
+	return floor(value + .5);
+end
 
 ---@type { [Region]: OmniCCDisplay }
 local displays = {}
@@ -292,7 +298,7 @@ function Display:UpdateCooldownTextPositionSizeAndColor()
 
     local textScale = sizeRatio * styleRatio
     text:Show()
-    text:SetScale(textScale)
+    --text:SetScale(textScale)
     text:SetTextColor(style.r, style.g, style.b, style.a)
 
     text:ClearAllPoints()

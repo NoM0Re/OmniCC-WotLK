@@ -46,7 +46,6 @@ L.Outline_NONE = NONE
 L.Outline_OUTLINE = 'Fino'
 L.Outline_OUTLINEMONOCHROME = 'Monocromático'
 L.Outline_THICKOUTLINE = 'Grosso'
-L.Preview = PREVIEW
 L.RuleAdd = 'Adicionar Regra'
 L.RuleAddDesc = 'Cria uma nova regra'
 L.RuleEnable = ENABLE

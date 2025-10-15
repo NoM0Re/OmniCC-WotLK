@@ -64,7 +64,7 @@ local function createFlareFrame()
 	local frame = CreateFrame('Frame')
 	frame:Hide()
 	frame:SetScript('OnHide', onFlareFrameHidden)
-	frame:SetToplevel(true)
+	--frame:SetToplevel(true)
 
 	local icon = frame:CreateTexture(nil, 'OVERLAY')
 	icon:SetPoint('CENTER')

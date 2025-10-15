@@ -26,8 +26,8 @@ local function getRandomIcon()
 end
 
 -- preview dialog
-local PreviewDialog = CreateFrame("Frame", AddonName .. "PreviewDialog", UIParent, "UIPanelDialogTemplate") -- port this XML later
-
+local PreviewDialog = CreateFrame("Frame", AddonName .. "PreviewDialog", UIParent)
+OmniCC.Templates["UIPanelDialogTemplate"](PreviewDialog)
 PreviewDialog:Hide()
 PreviewDialog:ClearAllPoints()
 PreviewDialog:SetPoint("CENTER")
@@ -52,19 +52,21 @@ PreviewDialog:SetScript(
             self:Hide()
         end
 
-        self.cooldown:Clear()
+        self._repeat = false
+        self:SetScript("OnUpdate", nil)
+        self.cooldown:SetCooldown(0, 0)
     end
 )
 
 -- title region
 local tr = CreateFrame("Frame", nil, PreviewDialog)
 OmniCC.Templates["TitleDragAreaTemplate"](tr)
-tr:SetAllPoints(PreviewDialog:GetName() .. "TitleBG")
+tr:SetAllPoints(PreviewDialog.TitleBG)
 
 -- title text
 local text = PreviewDialog:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 text:SetPoint("CENTER", tr)
-text:SetText(L.Preview)
+text:SetText("Preview")
 
 -- container
 local container = CreateFrame("Frame", nil, PreviewDialog)
@@ -73,7 +75,7 @@ container:SetPoint("BOTTOMRIGHT", -7, 9)
 
 -- contianer bg
 local bg = container:CreateTexture(nil, "BACKGROUND")
-bg:SetColorTexture(1, 1, 1, 0.3)
+bg:SetTexture(1, 1, 1, 0.3)
 bg:SetAllPoints()
 
 -- action icon
@@ -87,19 +89,9 @@ container.icon = icon
 local cooldown = CreateFrame("Cooldown", nil, container, "CooldownFrameTemplate")
 cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
 cooldown:SetAllPoints(icon)
-cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-cooldown:SetSwipeColor(0, 0, 0)
+--cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
+--cooldown:SetSwipeColor(0, 0, 0)
 cooldown:SetDrawEdge(false)
-cooldown:SetScript(
-    "OnCooldownDone",
-    function()
-        if PreviewDialog:IsVisible() then
-            PreviewDialog.icon:SetTexture(getRandomIcon())
-            PreviewDialog:StartCooldown(PreviewDialog.duration:GetValue())
-        end
-    end
-)
-
 PreviewDialog.cooldown = cooldown
 
 -- duration input
@@ -135,8 +127,33 @@ function PreviewDialog:SetTheme(theme)
     self:Show()
 end
 
+local function RepeatingTimer(frame, elapsed)
+    if not frame._repeat then return end
+    if GetTime() >= frame._endTime then
+      frame.icon:SetTexture(getRandomIcon())
+      local t = GetTime()
+      frame.cooldown:SetCooldown(t, frame._duration)
+      frame._endTime = t + frame._duration + 0.5
+    end
+end
+
 function PreviewDialog:StartCooldown(duration)
-    self.cooldown:SetCooldownDuration(tonumber(duration) or 0)
+  duration = tonumber(duration) or 0
+  if duration <= 0 then
+    self._repeat = false
+    self:SetScript("OnUpdate", nil)
+    self.cooldown:SetCooldown(0, 0)
+    return
+  end
+
+  self._repeat = true
+  self._duration = duration
+
+  local now = GetTime()
+  self.cooldown:SetCooldown(now, duration)
+  self._endTime = now + duration
+
+  self:SetScript("OnUpdate", RepeatingTimer)
 end
 
 -- exports

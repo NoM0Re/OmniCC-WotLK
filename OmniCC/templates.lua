@@ -27,13 +27,13 @@ OmniCC.Templates = {
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
     close:SetFrameLevel(128)
     frame.CloseButton = close
-    close:SetNormalTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\redbutton2x"), AddonName)
+    close:SetNormalTexture(format("Interface\\AddOns\\%s\\media\\redbutton2x", AddonName))
     close:GetNormalTexture():SetTexCoord(0.152344, 0.292969, 0.0078125, 0.304688)
-    close:SetPushedTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\redbutton2x"), AddonName)
+    close:SetPushedTexture(format("Interface\\AddOns\\%s\\media\\redbutton2x", AddonName))
     close:GetPushedTexture():SetTexCoord(0.152344, 0.292969, 0.320312, 0.617188)
-    close:SetDisabledTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\redbutton2x"), AddonName)
+    close:SetDisabledTexture(format("Interface\\AddOns\\%s\\media\\redbutton2x", AddonName))
     close:GetDisabledTexture():SetTexCoord(0.152344, 0.292969, 0.632812, 0.929688)
-    close:SetHighlightTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\redbutton2x", AddonName), "ADD")
+    close:SetHighlightTexture(format("Interface\\AddOns\\%s\\media\\redbutton2x", AddonName), "ADD")
     close:GetHighlightTexture():SetTexCoord(0.449219, 0.589844, 0.0078125, 0.304688)
   end,
 
@@ -55,21 +55,21 @@ OmniCC.Templates = {
     frame:EnableMouse(true)
     -- Left Texture
     local left = frame:CreateTexture(nil, "BACKGROUND")
-    left:SetTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\CommonSearch", AddonName))
+    left:SetTexture(format("Interface\\AddOns\\%s\\media\\CommonSearch", AddonName))
     left:SetSize(8, 20)
     left:SetPoint("LEFT", frame, "LEFT", -5, 0)
     left:SetTexCoord(0.886719, 0.949219, 0.335938, 0.648438)
     frame.Left = left
     -- Right Texture
     local right = frame:CreateTexture(nil, "BACKGROUND")
-    right:SetTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\CommonSearch"), AddonName)
+    right:SetTexture(format("Interface\\AddOns\\%s\\media\\CommonSearch", AddonName))
     right:SetSize(8, 20)
     right:SetPoint("RIGHT", frame, "RIGHT", 0, 0)
     right:SetTexCoord(0.00390625, 0.0664062, 0.664062, 0.976562)
     frame.Right = right
     -- Middle Texture (zwischen Left und Right)
     local middle = frame:CreateTexture(nil, "BACKGROUND")
-    middle:SetTexture(format("Interface\\AddOns\\%q\\Media\\Textures\\CommonSearch", AddonName))
+    middle:SetTexture(format("Interface\\AddOns\\%s\\media\\CommonSearch", AddonName))
     middle:SetSize(10, 20)
     middle:SetTexCoord(0.00390625, 0.878906, 0.335938, 0.648438)
     middle:SetPoint("LEFT", left, "RIGHT")
@@ -125,7 +125,7 @@ OmniCC.Templates = {
 
     -- Left texture
     local left = frame:CreateTexture(nil, "BACKGROUND")
-    left:SetTexture("Interface\\Common\\Common-Input-Border")
+    left:SetTexture(format("Interface\\AddOns\\%s\\media\\Common-Input-Border", AddonName))
     left:SetSize(8, 20)
     left:SetPoint("LEFT", frame, "LEFT", -5, 0)
     left:SetTexCoord(0.0, 0.0625, 0.0, 0.625)
@@ -133,7 +133,7 @@ OmniCC.Templates = {
 
     -- Right texture
     local right = frame:CreateTexture(nil, "BACKGROUND")
-    right:SetTexture("Interface\\Common\\Common-Input-Border")
+    right:SetTexture(format("Interface\\AddOns\\%s\\media\\Common-Input-Border", AddonName))
     right:SetSize(8, 20)
     right:SetPoint("RIGHT", frame, "RIGHT", 0, 0)
     right:SetTexCoord(0.9375, 1.0, 0.0, 0.625)
@@ -141,7 +141,7 @@ OmniCC.Templates = {
 
     -- Middle texture
     local middle = frame:CreateTexture(nil, "BACKGROUND")
-    middle:SetTexture("Interface\\Common\\Common-Input-Border")
+    middle:SetTexture(format("Interface\\AddOns\\%s\\media\\Common-Input-Border", AddonName))
     middle:SetSize(10, 20)
     middle:SetPoint("LEFT", left, "RIGHT")
     middle:SetPoint("RIGHT", right, "LEFT")
@@ -152,11 +152,11 @@ OmniCC.Templates = {
     local inc = CreateFrame("Button", nil, frame)
     inc:SetSize(23, 22)
     inc:SetPoint("LEFT", frame, "RIGHT", 0, 0)
-    inc:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up")
-    inc:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down")
-    inc:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Disabled")
+    inc:SetNormalTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-NextPage-Up", AddonName))
+    inc:SetPushedTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-NextPage-Down", AddonName))
+    inc:SetDisabledTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-NextPage-Disabled", AddonName))
     local incHL = inc:CreateTexture(nil, "HIGHLIGHT")
-    incHL:SetTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+    incHL:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-Common-MouseHilight", AddonName))
     incHL:SetBlendMode("ADD")
     incHL:SetAllPoints()
     frame.IncrementButton = inc
@@ -175,11 +175,11 @@ OmniCC.Templates = {
     local dec = CreateFrame("Button", nil, frame)
     dec:SetSize(23, 22)
     dec:SetPoint("RIGHT", frame, "LEFT", -6, 0)
-    dec:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up")
-    dec:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down")
-    dec:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Disabled")
+    dec:SetNormalTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-PrevPage-Up", AddonName))
+    dec:SetPushedTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-PrevPage-Down", AddonName))
+    dec:SetDisabledTexture(format("Interface\\AddOns\\%s\\media\\UI-SpellbookIcon-PrevPage-Disabled", AddonName))
     local decHL = dec:CreateTexture(nil, "HIGHLIGHT")
-    decHL:SetTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+    decHL:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-Common-MouseHilight", AddonName))
     decHL:SetBlendMode("ADD")
     decHL:SetAllPoints()
     frame.DecrementButton = dec
@@ -332,21 +332,21 @@ OmniCC.Templates = {
   ["UIPanelDialogTemplate"] = function(frame)
     -- OVERLAY layer
     local tl = frame:CreateTexture(nil, "OVERLAY")
-    tl:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    tl:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     tl:SetSize(64, 64)
     tl:SetPoint("TOPLEFT")
     tl:SetTexCoord(0.501953125, 0.625, 0, 1)
     frame.TopLeft = tl
 
     local tr = frame:CreateTexture(nil, "OVERLAY")
-    tr:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    tr:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     tr:SetSize(64, 64)
     tr:SetPoint("TOPRIGHT")
     tr:SetTexCoord(0.625, 0.75, 0, 1)
     frame.TopRight = tr
 
     local t = frame:CreateTexture(nil, "OVERLAY")
-    t:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    t:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     t:SetHeight(64)
     t:SetPoint("TOPLEFT", tl, "TOPRIGHT")
     t:SetPoint("TOPRIGHT", tr, "TOPLEFT")
@@ -354,21 +354,21 @@ OmniCC.Templates = {
     frame.Top = t
 
     local bl = frame:CreateTexture(nil, "OVERLAY")
-    bl:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    bl:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     bl:SetSize(64, 64)
     bl:SetPoint("BOTTOMLEFT")
     bl:SetTexCoord(0.751953125, 0.875, 0, 1)
     frame.BottomLeft = bl
 
     local br = frame:CreateTexture(nil, "OVERLAY")
-    br:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    br:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     br:SetSize(64, 64)
     br:SetPoint("BOTTOMRIGHT")
     br:SetTexCoord(0.875, 1, 0, 1)
     frame.BottomRight = br
 
     local b = frame:CreateTexture(nil, "OVERLAY")
-    b:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    b:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     b:SetHeight(64)
     b:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT")
     b:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT")
@@ -376,7 +376,7 @@ OmniCC.Templates = {
     frame.Bottom = b
 
     local l = frame:CreateTexture(nil, "OVERLAY")
-    l:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    l:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     l:SetWidth(64)
     l:SetPoint("TOPLEFT", tl, "BOTTOMLEFT")
     l:SetPoint("BOTTOMLEFT", bl, "TOPLEFT")
@@ -384,7 +384,7 @@ OmniCC.Templates = {
     frame.Left = l
 
     local r = frame:CreateTexture(nil, "OVERLAY")
-    r:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    r:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Border", AddonName))
     r:SetWidth(64)
     r:SetPoint("TOPRIGHT", tr, "BOTTOMRIGHT")
     r:SetPoint("BOTTOMRIGHT", br, "TOPRIGHT")
@@ -398,13 +398,13 @@ OmniCC.Templates = {
 
     -- BACKGROUND layer
     local titleBG = frame:CreateTexture(nil, "BACKGROUND")
-    titleBG:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background")
+    titleBG:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-GearManager-Title-Background", AddonName))
     titleBG:SetPoint("TOPLEFT", 8, -7)
     titleBG:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -8, -24)
     frame.TitleBG = titleBG
 
     local dialogBG = frame:CreateTexture(nil, "BACKGROUND")
-    dialogBG:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-CharacterTab-L1")
+    dialogBG:SetTexture(format("Interface\\AddOns\\%s\\media\\UI-Character-CharacterTab-L1", AddonName))
     dialogBG:SetPoint("TOPLEFT", 8, -24)
     dialogBG:SetPoint("BOTTOMRIGHT", -6, 8)
     dialogBG:SetTexCoord(0.255, 1, 0.29, 1)
@@ -413,3 +413,19 @@ OmniCC.Templates = {
     OmniCC.Templates["UIPanelCloseButton"](frame)
   end,
 }
+
+--[[
+Interface\AddOns\<AddonName>\Media\Textures\redbutton2x
+Interface\AddOns\<AddonName>\Media\Textures\CommonSearch
+Interface\Common\Common-Input-Border
+Interface\Buttons\UI-SpellbookIcon-NextPage-Up
+Interface\Buttons\UI-SpellbookIcon-NextPage-Down
+Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled
+Interface\Buttons\UI-SpellbookIcon-PrevPage-Up
+Interface\Buttons\UI-SpellbookIcon-PrevPage-Down
+Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled
+Interface\Buttons\UI-Common-MouseHilight
+Interface\PaperDollInfoFrame\UI-GearManager-Border
+Interface\PaperDollInfoFrame\UI-GearManager-Title-Background
+Interface\PaperDollInfoFrame\UI-Character-CharacterTab-L1
+]]

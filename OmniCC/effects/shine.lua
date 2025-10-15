@@ -55,7 +55,7 @@ end
 local function onShineFrameHidden(self)
 	if not unused[self] then
 		unused[self] = true
-		self:StopAnimating()
+		self.animation:Finish()
 		self:Hide()
 	end
 end

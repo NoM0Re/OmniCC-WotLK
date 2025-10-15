@@ -2,7 +2,7 @@
 local ADDON, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON)
 
-local FLARE_TEXTURE = ([[Interface\Addons\%s\media\flare]]):format(ADDON)
+local FLARE_TEXTURE = ([[Interface\AddOns\%s\media\flare.tga]]):format(ADDON)
 local FLARE_DURATION = 0.75
 local FLARE_SCALE = 5
 
@@ -55,7 +55,7 @@ end
 local function onFlareFrameHidden(self)
 	if not unused[self] then
 		unused[self] = true
-		self:StopAnimating()
+		self:Finish()
 		self:Hide()
 	end
 end
@@ -64,7 +64,7 @@ local function createFlareFrame()
 	local frame = CreateFrame('Frame')
 	frame:Hide()
 	frame:SetScript('OnHide', onFlareFrameHidden)
-	--frame:SetToplevel(true)
+	frame:SetToplevel(true)
 
 	local icon = frame:CreateTexture(nil, 'OVERLAY')
 	icon:SetPoint('CENTER')

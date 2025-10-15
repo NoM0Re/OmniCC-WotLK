@@ -45,10 +45,7 @@ do
 	end
 
 	local function pulseFrame_OnHide(self)
-		if self.animation:IsPlaying() then
-			self.animation:Stop()
-		end
-
+		self.animation:Finish()
 		self:Hide()
 	end
 

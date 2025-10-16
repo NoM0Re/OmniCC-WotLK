@@ -36,7 +36,7 @@ newAnim("Alpha", 1, 0,     -1) -- transparent
 newAnim("Alpha", 1, 0.3,  0.7) -- 70% opaque
 
 newAnim("Scale", 2, 0.3,    0)
-newAnim("Alpha", 2, 0.3,   -1) -- transparent
+newAnim("Alpha", 2, 0.3, -0.7) -- transparent
 
 local AlertEffect = Addon.FX:Create("alert", L.Alert, L.AlertTip)
 

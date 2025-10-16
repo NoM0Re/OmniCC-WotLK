@@ -55,7 +55,6 @@ end
 local function onFlareFrameHidden(self)
 	if not unused[self] then
 		unused[self] = true
-		self:Finish()
 		self:Hide()
 	end
 end

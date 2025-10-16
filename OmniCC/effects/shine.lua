@@ -55,7 +55,6 @@ end
 local function onShineFrameHidden(self)
 	if not unused[self] then
 		unused[self] = true
-		self.animation:Finish()
 		self:Hide()
 	end
 end
@@ -71,6 +70,7 @@ local function createShineFrame()
 	icon:SetBlendMode('ADD')
 	icon:SetAllPoints(icon:GetParent())
 	icon:SetTexture(SHINE_TEXTURE)
+	print(icon:GetTexture() or "no texture in shine")
 
 	frame.animation = createShineAnimation(frame)
 

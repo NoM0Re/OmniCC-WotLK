@@ -14,7 +14,7 @@ local MIN_START_OFFSET = -86400
 local GCD_SPELL_ID = 61304
 
 -- how much of a buffer we give finish effets (in seconds)
-local FINISH_EFFECT_BUFFER = -0.15
+local FINISH_EFFECT_BUFFER = -0.3
 
 -------------------------------------------------------------------------------
 -- Utility Methods
@@ -170,16 +170,6 @@ end
 ---@param self OmniCCCooldown
 ---@return OmniCCCooldownKind
 function Cooldown:GetKind()
-    local cdType = self.currentCooldownType
-
-    if cdType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
-        return 'loc'
-    end
-
-    if cdType == COOLDOWN_TYPE_NORMAL then
-        return 'default'
-    end
-
     return 'default'
 end
 

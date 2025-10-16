@@ -20,7 +20,6 @@
 
 ---@class OmniCCCooldown: Cooldown
 ---@field noCooldownCount Frame|boolean|nil?
----@field currentCooldownType 1|2|nil
 ---@field _occ_duration number?
 ---@field _occ_gcd boolean?
 ---@field _occ_kind OmniCCCooldownKind

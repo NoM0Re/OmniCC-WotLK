@@ -77,7 +77,8 @@ do
 		local pulse = Addon:CreateHiddenFrame("Frame", nil, owner)
 
 		pulse:SetAllPoints(owner)
-		pulse:SetToplevel(true)
+		pulse:SetFrameStrata(owner:GetFrameStrata())
+		pulse:SetFrameLevel(owner:GetFrameLevel() + 1)
 		pulse:SetScript("OnHide", pulseFrame_OnHide)
 		pulse.icon = pulseFrame_CreateIcon(pulse)
 		pulse.animation = pulseFrame_CreateAnimation(pulse)

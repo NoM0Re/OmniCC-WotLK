@@ -87,7 +87,6 @@ container.icon = icon
 
 -- cooldown
 local cooldown = CreateFrame("Cooldown", nil, container, "CooldownFrameTemplate")
-cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
 cooldown:SetAllPoints(icon)
 --cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 --cooldown:SetSwipeColor(0, 0, 0)

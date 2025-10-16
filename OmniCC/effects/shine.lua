@@ -63,14 +63,12 @@ local function createShineFrame()
 	local frame = CreateFrame('Frame')
 	frame:Hide()
 	frame:SetScript('OnHide', onShineFrameHidden)
-	frame:SetToplevel(true)
 
 	local icon = frame:CreateTexture(nil, 'OVERLAY')
 	icon:SetPoint('CENTER')
 	icon:SetBlendMode('ADD')
 	icon:SetAllPoints(icon:GetParent())
 	icon:SetTexture(SHINE_TEXTURE)
-	print(icon:GetTexture() or "no texture in shine")
 
 	frame.animation = createShineAnimation(frame)
 
@@ -87,6 +85,9 @@ function ShineEffect:Run(cooldown)
 		shine:SetParent(owner)
 		shine:ClearAllPoints()
 		shine:SetAllPoints(cooldown)
+		shine:SetFrameStrata(cooldown:GetFrameStrata())
+		shine:SetFrameLevel(cooldown:GetFrameLevel() + 1)
+
 		shine:Show()
 		shine.animation:Play()
 	end

@@ -3,7 +3,6 @@
 
 -- local bindings!
 local AddonName, Addon = ...
-local AceTimer = LibStub('AceTimer-3.0')
 local L = LibStub('AceLocale-3.0'):GetLocale(AddonName)
 
 -- time units in ms
@@ -145,7 +144,7 @@ function Timer:Update(key)
 
     local sleep = min(textSleep, stateSleep)
     if sleep < DAY then
-        AceTimer:ScheduleTimer(self.callback, max(sleep / SECOND, 0.1))
+        Addon.Updater:ScheduleTimer(self.callback, max(sleep / SECOND, 0.015))
     end
 end
 

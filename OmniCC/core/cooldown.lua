@@ -191,7 +191,6 @@ function Cooldown:Initialize()
 
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
-        --self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
 
         cooldowns[self] = true
     end

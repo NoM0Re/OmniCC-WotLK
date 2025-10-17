@@ -3,6 +3,8 @@ max_line_length = false
 exclude_files = {
 	".luacheckrc",
 	".luarocks",
+	"OmniCC/libs/",
+	"OmniCC_Config/libs/",
 }
 ignore = {
 	"11./SLASH_.*", -- Setting an undefined (Slash handler) global variable
@@ -19567,5 +19569,6 @@ globals = {
 	"seconds", "NUM_CHAT_WINDOWS","GetNumGlyphSockets", "GetGlyphLink", "GetGlyphSocketInfo",
 	"APIDocumentationMixin", "BaseAPIMixin","EventsAPIMixin", "FieldsAPIMixin", "FunctionsAPIMixin",
 	"SystemsAPIMixin", "TablesAPIMixin", "CopyToClipboard", "ChatFrame_OpenChat", "ChatTypeInfo",
-	"EditBox_ClearFocus", "EditBox_ClearHighlight", "EditBox_HighlightText", "AwesomeCVar"
+	"EditBox_ClearFocus", "EditBox_ClearHighlight", "EditBox_HighlightText", "AwesomeCVar",
+	"ActionButton1Cooldown"
 }

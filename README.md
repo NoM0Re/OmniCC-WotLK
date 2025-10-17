@@ -7,7 +7,6 @@
 **Cooldown count for everything**
 
 <img src="https://i.ibb.co/JwntwKWG/omnicc.jpg">
-<img src="https://i.ibb.co/DPRsJtkr/omicc-character.png">
 
 </div>
 

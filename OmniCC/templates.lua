@@ -36,6 +36,7 @@ OmniCC.Templates = {
   end,
 
   ["TitleDragAreaTemplate"] = function(frame)
+    frame:EnableMouse(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", function(self)
       local p = self:GetParent()

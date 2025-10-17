@@ -19570,5 +19570,5 @@ globals = {
 	"APIDocumentationMixin", "BaseAPIMixin","EventsAPIMixin", "FieldsAPIMixin", "FunctionsAPIMixin",
 	"SystemsAPIMixin", "TablesAPIMixin", "CopyToClipboard", "ChatFrame_OpenChat", "ChatTypeInfo",
 	"EditBox_ClearFocus", "EditBox_ClearHighlight", "EditBox_HighlightText", "AwesomeCVar",
-	"ActionButton1Cooldown"
+	"ActionButton1Cooldown", "BOOKTYPE_SPELL", "ActionButton1"
 }

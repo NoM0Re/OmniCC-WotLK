@@ -5,6 +5,12 @@ local _, Addon = ...
 local ICON_SIZE = 36
 local DEFAULT_STATE = 'seconds'
 
+function Round(value)
+	if value < 0 then
+		return ceil(value - .5);
+	end
+	return floor(value + .5);
+end
 
 ---@type { [Region]: OmniCCDisplay }
 local displays = {}
@@ -65,7 +71,7 @@ function Display:UpdateSize()
     end
 
     self.updatingSize = true
-    C_Timer.After(GetTickTime(), self.updateSize)
+    Addon.Updater:RunNextFrame(self.updateSize)
 end
 
 ---@param timer OmniCCTimer
@@ -89,6 +95,8 @@ function Display:OnTimerStateUpdated(timer, state)
 
     if (self.state ~= state) then
         self.state = state
+        -- when the period style changes, recompute font size (scaling via font)
+        self:UpdateCooldownTextFont()
         self:UpdateCooldownTextPositionSizeAndColor()
     end
 end
@@ -145,8 +153,25 @@ function Display:UpdateActiveCooldown()
 
         -- reposition the display to be above the cooldown
         if cooldown then
-            self:SetAllPoints(cooldown)
-            self:SetFrameLevel(cooldown:GetFrameLevel() + 507)
+            -- anchor at CENTER and mirror size instead of SetAllPoints (3.3.5a-safe)
+            self:ClearAllPoints()
+            self:SetPoint('CENTER', cooldown)
+            self:SetFrameLevel(cooldown:GetFrameLevel() + 5)
+            self:SetSize(cooldown:GetSize())
+
+            -- hook to keep size in sync when the cooldown resizes
+            if not self._occ_hookedSize then
+                cooldown:HookScript('OnSizeChanged', function(cd, w, h)
+                    if self and self.SetSize then
+                        self:SetSize(w, h)
+                        if self.UpdateSize then
+                            self:UpdateSize()
+                        end
+                    end
+                end)
+                self._occ_hookedSize = true
+            end
+
             self:UpdateCooldownTextFont()
             self:UpdateCooldownTextPositionSizeAndColor()
         end
@@ -250,17 +275,28 @@ function Display:UpdateCooldownTextFont()
     local sets = self:GetSettings()
     local text = self.text
 
-    if sets then
-        if not text:SetFont(sets.fontFace, sets.fontSize, sets.fontOutline) then
-            text:SetFont(STANDARD_TEXT_FONT, sets.fontSize, sets.fontOutline)
-        end
-
-        local shadow = sets.fontShadow
-        text:SetShadowColor(shadow.r, shadow.g, shadow.b, shadow.a)
-        text:SetShadowOffset(shadow.x, shadow.y)
-    else
+    if not sets then
         text:SetFont(STANDARD_TEXT_FONT, 8, 'OUTLINE')
+        self._occ_effFontSize = 8
+        return
     end
+
+    local sizeRatio = self.sizeRatio or self:CalculateSizeRatio()
+    local style = sets.textStyles[self.state or DEFAULT_STATE]
+    local periodScale = (style and style.scale) or 1
+
+    local effSize = Round((sets.fontSize or 12) * sizeRatio * periodScale)
+    if effSize < 1 then effSize = 1 end
+
+    if not text:SetFont(sets.fontFace, effSize, sets.fontOutline) then
+        text:SetFont(STANDARD_TEXT_FONT, effSize, sets.fontOutline)
+    end
+
+    local shadow = sets.fontShadow
+    text:SetShadowColor(shadow.r, shadow.g, shadow.b, shadow.a)
+    text:SetShadowOffset(shadow.x, shadow.y)
+
+    self._occ_effFontSize = effSize
 end
 
 -- props:{size, scale, state, anchor, xOff, yOff}
@@ -274,27 +310,25 @@ function Display:UpdateCooldownTextPositionSizeAndColor()
     local sizeRatio = self.sizeRatio or self:CalculateSizeRatio()
     local scaleRatio = self.scaleRatio or self:CalculateScaleRatio()
 
-    -- hide text if the display size is below our min ratio
-    if (sizeRatio * scaleRatio) <= (sets.minSize or 0) then
-        text:Hide()
-        return
-    end
-
     local style = sets.textStyles[self.state or DEFAULT_STATE]
     local styleRatio = style and style.scale or 1
 
+    local effFont = self._occ_effFontSize or Round((sets.fontSize or 12) * sizeRatio * styleRatio)
+    local effPixels = scaleRatio * effFont
+    local minPixels = sets.minSize or 0
+
     -- hide text if the scale ratio is zero or below
-    if styleRatio <= 0 then
+    if effPixels <= minPixels or styleRatio <= 0 then
         text:Hide()
         return
     end
 
-    local textScale = sizeRatio * styleRatio
     text:Show()
-    text:SetScale(textScale)
+
     text:SetTextColor(style.r, style.g, style.b, style.a)
 
     text:ClearAllPoints()
+    local textScale = sizeRatio * styleRatio
     text:SetPoint(sets.anchor, sets.xOff / textScale, sets.yOff / textScale)
 end
 

@@ -2,8 +2,8 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-type: 'feature'
-assignees: 'Tuller'
+labels: "\U0001F3A8 Feature Request"
+assignees: ''
 ---
 
 **Is your feature request related to a problem? Please describe.**

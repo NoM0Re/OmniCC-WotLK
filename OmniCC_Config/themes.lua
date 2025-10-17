@@ -23,6 +23,7 @@ local function createStateOptionsForTheme(theme, id, order)
     }
 
     for i, state in ipairs {'soon', 'seconds', 'minutes', 'hours', 'charging', 'controlled'} do
+        local isDisabled = (state == 'charging' or state == 'controlled')
         group.args[state] = {
             type = 'group',
             name = L['State_' .. state],
@@ -47,7 +48,8 @@ local function createStateOptionsForTheme(theme, id, order)
                         style.a = a
 
                         OmniCC.Display:ForAll('UpdateCooldownTextPositionSizeAndColor')
-                    end
+                    end,
+                    disabled = isDisabled,
                 },
                 scale = {
                     order = 2,
@@ -62,7 +64,8 @@ local function createStateOptionsForTheme(theme, id, order)
                     set = function(_, val)
                         theme.textStyles[state].scale = val
                         OmniCC.Display:ForAll('UpdateCooldownTextPositionSizeAndColor')
-                    end
+                    end,
+                    disabled = isDisabled,
                 }
             }
         }
@@ -477,7 +480,7 @@ local function addThemeOptions(owner, theme, id)
             preview = {
                 type = 'execute',
                 order = 9000,
-                name = L.Preview,
+                name = "Preview",
                 func = function()
                     Addon.PreviewDialog:SetTheme(theme)
                 end

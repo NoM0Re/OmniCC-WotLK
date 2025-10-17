@@ -1,4 +1,4 @@
-## Interface: 110205, 110200, 50501, 50500, 11507
+## Interface: 33000
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-esMX: Contador de tiempo de reutilización
@@ -18,12 +18,14 @@
 ## Category-ruRU: Бой
 ## Category-zhCN: 战斗
 ## Category-zhTW: 戰鬥
-## Version: @project-version@
+## Version: 11.2.7
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
+
 embeds.xml
 localization\localization.xml
 main.lua
+templates.lua
 core\core.xml
 settings\settings.xml
 effects\effects.xml

@@ -14,7 +14,7 @@ local MIN_START_OFFSET = -86400
 local GCD_SPELL_ID = 61304
 
 -- how much of a buffer we give finish effets (in seconds)
-local FINISH_EFFECT_BUFFER = -0.15
+local FINISH_EFFECT_BUFFER = -0.3
 
 -------------------------------------------------------------------------------
 -- Utility Methods
@@ -23,74 +23,34 @@ local FINISH_EFFECT_BUFFER = -0.15
 local IsGCD, GetGCDTimeRemaining
 
 -- gcd tests
-if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" then
-    ---@param start number
-    ---@param duration number
-    ---@param modRate number
-    ---@return boolean
-    IsGCD = function (start, duration, modRate)
-        if not (start > 0 and duration > 0 and modRate > 0) then
-            return false
-        end
-
-        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
-
-        return gcd
-            and gcd.isEnabled
-            and start == gcd.startTime
-            and duration == gcd.duration
-            and modRate == gcd.modRate
+---@param start number
+---@param duration number
+---@param modRate number
+---@return boolean
+IsGCD = function (start, duration)
+    if not (start > 0 and duration > 0) then
+        return false
     end
 
-    GetGCDTimeRemaining = function()
-        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
-        if not (gcd and gcd.isEnabled) then
-            return 0
-        end
+    local gcdStart, gcdDuration, gcdEnabled = GetSpellCooldown(GCD_SPELL_ID)
 
-        local start, duration, modRate = gcd.startTime, gcd.duration, gcd.modRate
-        if not (start > 0 and duration > 0 and modRate > 0) then
-            return 0
-        end
+    return gcdEnabled
+        and start == gcdStart
+        and duration == gcdDuration
+end
 
-        local remain = (start + duration) - GetTime()
-        if remain > 0 then
-            return remain / modRate
-        end
-
+GetGCDTimeRemaining = function()
+    local start, duration, enabled = GetSpellCooldown(GCD_SPELL_ID)
+    if (not enabled and start > 0 and duration > 0) then
         return 0
     end
-else
-    ---@param start number
-    ---@param duration number
-    ---@param modRate number
-    ---@return boolean
-    IsGCD = function (start, duration, modRate)
-        if not (start > 0 and duration > 0 and modRate > 0) then
-            return false
-        end
 
-        local gcdStart, gcdDuration, gcdEnabled, gcdModRate = GetSpellCooldown(GCD_SPELL_ID)
-
-        return gcdEnabled
-            and start == gcdStart
-            and duration == gcdDuration
-            and modRate == gcdModRate
+    local remain = (start + duration) - GetTime()
+    if remain > 0 then
+        return remain
     end
 
-    GetGCDTimeRemaining = function()
-        local start, duration, enabled, modRate = GetSpellCooldown(GCD_SPELL_ID)
-        if (not enabled and start > 0 and duration > 0 and modRate > 0) then
-            return 0
-        end
-
-        local remain = (start + duration) - GetTime()
-        if remain > 0 then
-            return remain
-        end
-
-        return 0
-    end
+    return 0
 end
 
 ---Retrieves the name of the given region. If no name is found, checks ancestors
@@ -129,17 +89,8 @@ function Cooldown:CanShowText()
         return false
     end
 
-    local modRate = self._occ_modRate or 1
-    if modRate <= 0 then
-        return false
-    end
-
     local start = self._occ_start or 0
     if start <= 0 then
-        return false
-    end
-
-    if self.GetHideCountdownNumbers and not self:GetHideCountdownNumbers() then
         return false
     end
 
@@ -181,11 +132,6 @@ function Cooldown:CanShowFinishEffect()
         return false
     end
 
-    local modRate = self._occ_modRate or 1
-    if modRate <= 0 then
-        return false
-    end
-
     local start = self._occ_start or 0
     if start <= 0 then
         return false
@@ -224,22 +170,6 @@ end
 ---@param self OmniCCCooldown
 ---@return OmniCCCooldownKind
 function Cooldown:GetKind()
-    local cdType = self.currentCooldownType
-
-    if cdType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
-        return 'loc'
-    end
-
-    if cdType == COOLDOWN_TYPE_NORMAL then
-        return 'default'
-    end
-
-    ---@type Frame|{ chargeCooldown: Cooldown? }?
-    local parent = self:GetParent()
-    if parent and parent.chargeCooldown == self then
-        return 'charge'
-    end
-
     return 'default'
 end
 
@@ -261,28 +191,8 @@ function Cooldown:Initialize()
 
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
-        self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
-
-        -- this is a hack to make sure that text for charge cooldowns can appear
-        -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
-        -- frame level
-        ---@type Frame|{ chargeCooldown: Cooldown?, cooldown: Cooldown? }?
-        local parent = self:GetParent()
-
-        if parent and parent.chargeCooldown == self then
-            local cooldown = parent.cooldown
-            if cooldown then
-                self:SetFrameStrata(cooldown:GetFrameStrata())
-                self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
-            end
-        end
 
         cooldowns[self] = true
-    end
-
-    -- check and turn off blizzard text if needed
-    if Addon.db.global.disableBlizzardCooldownText then
-        self:SetHideCountdownNumbers(true)
     end
 end
 
@@ -320,7 +230,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:UpdateText()
-    if self._occ_show and (not self:IsForbidden()) and self:IsVisible() then
+    if self._occ_show and self:IsVisible() then
         Cooldown.ShowText(self)
     else
         Cooldown.HideText(self)
@@ -370,32 +280,26 @@ function Cooldown:Refresh(force)
     if force then
         self._occ_start = nil
         self._occ_duration = nil
-        self._occ_modRate = nil
     end
 
     Cooldown.Initialize(self)
 
-    local start, duration = self:GetCooldownTimes()
+    local start, duration = self._occ_start or 0, self._occ_duration or 0
     if start == 0 or duration == 0 then
-        Cooldown.SetTimer(self, 0, 0, 1)
+        Cooldown.SetTimer(self, 0, 0)
     else
-        Cooldown.SetTimer(self, start / 1000, duration / 1000, duration / self:GetCooldownDisplayDuration())
+        Cooldown.SetTimer(self, start / 1000, duration / 1000)
     end
 end
 
 ---@param self OmniCCCooldown
 ---@param start number
 ---@param duration number
----@param modRate number?
-function Cooldown:SetTimer(start, duration, modRate)
-    if modRate == nil then
-        modRate = 1
-    end
-
+function Cooldown:SetTimer(start, duration)
     -- both the wow api and addons (especially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
     -- we check and do nothing if there is an exact start/duration match
-    if self._occ_start == start and self._occ_duration == duration and self._occ_modRate == modRate then
+    if self._occ_start == start and self._occ_duration == duration then
         return
     end
 
@@ -405,9 +309,8 @@ function Cooldown:SetTimer(start, duration, modRate)
 
     self._occ_start = start
     self._occ_duration = duration
-    self._occ_modRate = modRate
 
-    self._occ_gcd = IsGCD(start, duration, modRate)
+    self._occ_gcd = IsGCD(start, duration)
     self._occ_kind = Cooldown.GetKind(self)
     self._occ_priority = Cooldown.GetPriority(self)
     self._occ_show = Cooldown.CanShowText(self)
@@ -447,7 +350,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:OnCooldownDone()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -457,31 +360,18 @@ end
 ---@param self OmniCCCooldown
 ---@param start number
 ---@param duration number
----@param modRate number?
-function Cooldown:OnSetCooldown(start, duration, modRate)
-    if self.noCooldownCount or self:IsForbidden() then
+function Cooldown:OnSetCooldown(start, duration)
+    if self.noCooldownCount then
         return
     end
 
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration, modRate)
-end
-
----@param self OmniCCCooldown
----@param duration number
----@param modRate number?
-function Cooldown:OnSetCooldownDuration(duration, modRate)
-    if self.noCooldownCount or self:IsForbidden() then
-        return
-    end
-
-    Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, self:GetCooldownTimes() / 1000, duration, modRate)
+    Cooldown.SetTimer(self, start, duration)
 end
 
 ---@param self OmniCCCooldown
 function Cooldown:SetDisplayAsPercentage()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -490,7 +380,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:OnVisibilityUpdated()
-    if self.noCooldownCount or self:IsForbidden() then
+    if self.noCooldownCount then
         return
     end
 
@@ -502,7 +392,6 @@ function Cooldown:OnClear()
     if self._occ_start ~= nil then
         self._occ_start = nil
         self._occ_duration = nil
-        self._occ_modRate = nil
 
         Cooldown.HideText(self)
     end
@@ -540,24 +429,9 @@ function Cooldown:GetTheme()
     return Addon:GetDefaultTheme()
 end
 
-function Cooldown:OnSetHideCountdownNumbers(hide)
-    local disable = not (hide or self.noCooldownCount or self:IsForbidden())
-                    and Addon.db.global.disableBlizzardCooldownText
-
-    if disable then
-        self:SetHideCountdownNumbers(true)
-        Cooldown.Refresh(self)
-    end
-end
-
 -- misc
 function Cooldown.SetupHooks()
-    local cooldown_mt = getmetatable(ActionButton1Cooldown).__index
-    hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
-    hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
-    hooksecurefunc(cooldown_mt, 'Clear', Cooldown.OnClear)
-    hooksecurefunc(cooldown_mt, 'SetHideCountdownNumbers', Cooldown.OnSetHideCountdownNumbers)
-    hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
+    hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', Cooldown.OnSetCooldown)
 end
 
 ---@param method string

@@ -3,42 +3,32 @@ local AddonName, Addon = ...
 local CONFIG_ADDON = AddonName .. '_Config'
 local L = LibStub('AceLocale-3.0'):GetLocale(AddonName)
 
-EventUtil.ContinueOnAddOnLoaded(AddonName, function(addonName)
-    Addon:InitializeDB()
-    Addon.Cooldown:SetupHooks()
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ADDON_LOADED")
+frame:SetScript("OnEvent", function(self, event, arg1)
+    if arg1 == AddonName then
+        Addon:InitializeDB()
+        Addon.Cooldown:SetupHooks()
 
-    -- setup addon compartment button
-	if AddonCompartmentFrame then
-		AddonCompartmentFrame:RegisterAddon{
-			text = C_AddOns.GetAddOnMetadata(addonName, "Title"),
-			icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture"),
-			func = function() Addon:ShowOptionsFrame() end,
-		}
-	end
-
-    -- setup slash commands
-    SlashCmdList[AddonName] = function(cmd, ...)
-        if cmd == 'version' then
-            print(L.Version:format(Addon.db.global.addonVersion))
-        elseif cmd == 'blizzard' then
-            if Addon.db.global.disableBlizzardCooldownText then
-                Addon.db.global.disableBlizzardCooldownText = false
+        -- setup slash commands
+        SLASH_OMNICC1 = '/omnicc'
+        SLASH_OMNICC2 = '/occ'
+        SlashCmdList["OMNICC"] = function(cmd)
+            cmd = cmd and cmd:lower() or ""
+            if cmd == 'version' then
+                print(L.Version:format(Addon.db.global.addonVersion))
+            elseif cmd == 'config' then
+                Addon:ShowOptionsFrame()
             else
-                Addon.db.global.disableBlizzardCooldownText = true
+                Addon:ShowOptionsFrame()
             end
-            C_UI.Reload()
-        elseif cmd == 'config' then
-            Addon:ShowOptionsFrame()
-        else
-            Addon:ShowOptionsFrame()
         end
+
+        self:UnregisterEvent("ADDON_LOADED")
+        self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        Addon:PLAYER_ENTERING_WORLD()
     end
-
-    SLASH_OmniCC1 = '/omnicc'
-    SLASH_OmniCC2 = '/occ'
-
-    -- watch for subsequent events
-    EventRegistry:RegisterFrameEventAndCallback("PLAYER_ENTERING_WORLD", Addon.PLAYER_ENTERING_WORLD, Addon)
 end)
 
 function Addon:PLAYER_ENTERING_WORLD()
@@ -47,7 +37,7 @@ end
 
 -- utility methods
 function Addon:ShowOptionsFrame()
-    if C_AddOns.LoadAddOn(CONFIG_ADDON) then
+    if LoadAddOn(CONFIG_ADDON) then
         local dialog = LibStub('AceConfigDialog-3.0')
 
         dialog:Open(AddonName)

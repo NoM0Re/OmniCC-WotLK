@@ -2,7 +2,7 @@
 local ADDON, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON)
 
-local FLARE_TEXTURE = ([[Interface\Addons\%s\media\flare]]):format(ADDON)
+local FLARE_TEXTURE = ([[Interface\AddOns\%s\media\flare.tga]]):format(ADDON)
 local FLARE_DURATION = 0.75
 local FLARE_SCALE = 5
 
@@ -23,9 +23,8 @@ local function createFlareAnimation(parent)
 	animation:SetLooping('NONE')
 
 	local init = animation:CreateAnimation('Alpha')
-	init:SetFromAlpha(1)
 	init:SetDuration(0)
-	init:SetToAlpha(0)
+	init:SetChange(-1)
 	init:SetOrder(0)
 
 	local grow = animation:CreateAnimation('Scale')
@@ -36,8 +35,7 @@ local function createFlareAnimation(parent)
 
 	local brighten = animation:CreateAnimation('Alpha')
 	brighten:SetDuration(FLARE_DURATION / 2)
-	brighten:SetFromAlpha(0)
-	brighten:SetToAlpha(1)
+	brighten:SetChange(1)
 	brighten:SetOrder(1)
 
 	local shrink = animation:CreateAnimation('Scale')
@@ -48,8 +46,7 @@ local function createFlareAnimation(parent)
 
 	local fade = animation:CreateAnimation('Alpha')
 	fade:SetDuration(FLARE_DURATION / 2)
-	fade:SetFromAlpha(1)
-	fade:SetToAlpha(0)
+	fade:SetChange(-1)
 	fade:SetOrder(2)
 
 	return animation
@@ -58,7 +55,6 @@ end
 local function onFlareFrameHidden(self)
 	if not unused[self] then
 		unused[self] = true
-		self:StopAnimating()
 		self:Hide()
 	end
 end
@@ -67,7 +63,6 @@ local function createFlareFrame()
 	local frame = CreateFrame('Frame')
 	frame:Hide()
 	frame:SetScript('OnHide', onFlareFrameHidden)
-	frame:SetToplevel(true)
 
 	local icon = frame:CreateTexture(nil, 'OVERLAY')
 	icon:SetPoint('CENTER')
@@ -90,6 +85,8 @@ function FlareEffect:Run(cooldown)
 		shine:SetParent(owner)
 		shine:ClearAllPoints()
 		shine:SetAllPoints(cooldown)
+		shine:SetFrameStrata(cooldown:GetFrameStrata())
+		shine:SetFrameLevel(cooldown:GetFrameLevel() + 1)
 		shine:Show()
 		shine.animation:Play()
 	end

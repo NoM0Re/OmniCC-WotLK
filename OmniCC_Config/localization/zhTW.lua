@@ -49,7 +49,6 @@ L.Outline_NONE = NONE
 L.Outline_OUTLINE = "細邊"
 L.Outline_OUTLINEMONOCHROME = "無抗鋸齒"
 L.Outline_THICKOUTLINE = "粗邊"
-L.Preview = PREVIEW
 L.RuleAdd = "新增規則"
 L.RuleAddDesc = "建立一個新規則"
 L.RuleEnable = ENABLE

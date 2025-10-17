@@ -45,7 +45,6 @@ L.Outline_NONE = NONE
 L.Outline_OUTLINE = 'Тонкий'
 L.Outline_OUTLINEMONOCHROME = 'Одноцветный'
 L.Outline_THICKOUTLINE = 'Толстый'
-L.Preview = PREVIEW
 L.RuleAdd = 'Добавить правило'
 L.RuleAddDesc = 'Создание нового правила.'
 L.RuleEnable = ENABLE

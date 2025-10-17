@@ -9,7 +9,7 @@ local PulseEffect = Addon.FX:Create("pulse", L.Pulse, L.PulseTip)
 
 function PulseEffect:Run(cooldown)
 	local parent = cooldown:GetParent()
-	if (not parent) or parent:IsForbidden() then
+	if not parent then
 		return
 	end
 
@@ -45,10 +45,6 @@ do
 	end
 
 	local function pulseFrame_OnHide(self)
-		if self.animation:IsPlaying() then
-			self.animation:Stop()
-		end
-
 		self:Hide()
 	end
 
@@ -81,7 +77,8 @@ do
 		local pulse = Addon:CreateHiddenFrame("Frame", nil, owner)
 
 		pulse:SetAllPoints(owner)
-		pulse:SetToplevel(true)
+		pulse:SetFrameStrata(owner:GetFrameStrata())
+		pulse:SetFrameLevel(owner:GetFrameLevel() + 1)
 		pulse:SetScript("OnHide", pulseFrame_OnHide)
 		pulse.icon = pulseFrame_CreateIcon(pulse)
 		pulse.animation = pulseFrame_CreateAnimation(pulse)

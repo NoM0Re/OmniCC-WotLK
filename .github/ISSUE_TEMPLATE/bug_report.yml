@@ -1,7 +1,6 @@
 name: Bug Report
 description: File a bug report.
-type: 'bug'
-assignees: 'Tuller'
+labels: ['🐛 Bug']
 body:
   - type: textarea
     id: description
@@ -32,19 +31,20 @@ body:
     attributes:
       label: AddOn Version
       description: AddOn version (you can get this from /omnicc version). Please doublecheck that you're running the latest release.
-  - type: checkboxes
-    id: clientVersion
+  - type: dropdown
+    id: flavor
     attributes:
-      label: Game Version
-      description: What versions of the game are you playing where the issue happens?
+      label: World of Warcraft Flavor
+      description: What version of World of Warcraft are are you running?
       options:
-        - label: Retail
-        - label: Classic
-        - label: Vanilla
-        - label: PTR
-        - label: Beta
+        - WotLK 3.3.5a
+    validations:
+      required: true
   - type: input
-    id: clientBuild
+    id: server
     attributes:
-      label: Game Build
-      description: You can get this via the command, `/dump GetBuildInfo()`
+      label: Server
+      description: On which server/realm are you playing?
+      placeholder: Warmane-Icecrown
+    validations:
+      required: true

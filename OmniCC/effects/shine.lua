@@ -2,7 +2,7 @@
 local AddonName, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
-local SHINE_TEXTURE = [[Interface\Cooldown\star4]]
+local SHINE_TEXTURE = format("Interface\\AddOns\\%s\\media\\star4", AddonName)
 local SHINE_DURATION = 0.75
 local SHINE_SCALE = 5
 

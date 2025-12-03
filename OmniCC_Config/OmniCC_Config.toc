@@ -1,4 +1,4 @@
-## Interface: 33000
+## Interface: 30300
 ## Title: OmniCC Config
 ## Title-ruRU: Конфигурация OmniCC
 ## Notes: OmniCC's configuration menu

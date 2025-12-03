@@ -1,4 +1,4 @@
-## Interface: 33000
+## Interface: 30300
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-esMX: Contador de tiempo de reutilización

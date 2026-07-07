@@ -122,6 +122,7 @@ function Timer:Update(key)
 
     local remain = (self.endTime or 0) - (GetTime() * SECOND)
     if remain <= 0 then
+        self.finished = true
         self:Destroy()
         return
     end

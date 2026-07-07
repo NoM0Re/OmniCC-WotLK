@@ -104,6 +104,10 @@ end
 ---@param timer OmniCCTimer
 function Display:OnTimerDestroyed(timer)
     if self.timer == timer then
+        if timer.finished and self.activeCooldown then
+            Addon.Cooldown.TryShowFinishEffect(self.activeCooldown)
+        end
+
         self:RemoveCooldown(self.activeCooldown)
     end
 end

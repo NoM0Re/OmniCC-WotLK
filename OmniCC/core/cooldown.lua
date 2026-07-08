@@ -421,7 +421,7 @@ function Cooldown:GetTheme()
 
     if name then
         local rule = Addon:GetMatchingRule(name)
-        if rule then
+        if rule and Addon:HasTheme(rule.theme) then
             return Addon:GetTheme(rule.theme)
         end
     end

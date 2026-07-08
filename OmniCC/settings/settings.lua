@@ -121,12 +121,14 @@ function Addon:AddDefaultRulesets(db)
     table.insert(db.profile.rules, {
         id = 'auras',
         name = AURAS,
+        theme = DEFAULT,
         enabled = false,
         patterns = {'Aura', 'Buff', 'Debuff'}
     })
 
     table.insert(db.profile.rules, {
         id = 'plates',
+        theme = DEFAULT,
         enabled = false,
         name = UNIT_NAMEPLATES,
         patterns = {'Plate'}
@@ -134,6 +136,7 @@ function Addon:AddDefaultRulesets(db)
 
     table.insert(db.profile.rules, {
         id = 'actions',
+        theme = DEFAULT,
         enabled = false,
         name = ACTIONBARS_LABEL,
         patterns = {'ActionButton', "MultiBar"}

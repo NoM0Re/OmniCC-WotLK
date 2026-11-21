@@ -145,7 +145,7 @@ function Timer:Update(key)
 
     local sleep = min(textSleep, stateSleep)
     if sleep < DAY then
-        Addon.Updater:ScheduleTimer(self.callback, max(sleep / SECOND, 0.015))
+        Addon.C_Timer.After(max(sleep / SECOND, 0.015), self.callback)
     end
 end
 

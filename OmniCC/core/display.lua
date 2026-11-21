@@ -71,7 +71,7 @@ function Display:UpdateSize()
     end
 
     self.updatingSize = true
-    Addon.Updater:RunNextFrame(self.updateSize)
+    Addon.RunNextFrame(self.updateSize)
 end
 
 ---@param timer OmniCCTimer

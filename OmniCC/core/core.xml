@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="updater.lua" />
+	<Script file="Compatibility.lua" />
 	<Script file="cooldown.lua" />
 	<Script file="timer.lua" />
 	<Script file="display.lua" />

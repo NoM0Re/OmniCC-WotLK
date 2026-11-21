@@ -49,8 +49,8 @@ function Display:Create(owner)
         local oldScale = display.scaleRatio
         local newScale = display:CalculateScaleRatio()
 
-        if not (oldSize == newSize and oldScale == newScale) then
-            display:UpdateCooldownTextPositionSizeAndColor()
+        if display.activeCooldown and (oldSize ~= newSize or oldScale ~= newScale) then
+            display:UpdateCooldownText()
         end
 
         display.updatingSize = nil
@@ -176,8 +176,9 @@ function Display:UpdateActiveCooldown()
                 self._occ_hookedSize = true
             end
 
-            self:UpdateCooldownTextFont()
-            self:UpdateCooldownTextPositionSizeAndColor()
+            self:CalculateSizeRatio()
+            self:CalculateScaleRatio()
+            self:UpdateCooldownText()
         end
     end
 
@@ -322,7 +323,7 @@ function Display:UpdateCooldownTextPositionSizeAndColor()
     local minPixels = sets.minSize or 0
 
     -- hide text if the scale ratio is zero or below
-    if effPixels <= minPixels or styleRatio <= 0 then
+    if sizeRatio <= 0 or effPixels <= minPixels or styleRatio <= 0 then
         text:Hide()
         return
     end

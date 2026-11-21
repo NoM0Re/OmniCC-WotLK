@@ -36,6 +36,7 @@ function Addon:RemoveTheme(id)
 		end
 
 		themes[id] = nil
+		self.Cooldown:ForAll('UpdateSettings')
 		return true
 	end
 end

@@ -13,44 +13,27 @@ local MIN_START_OFFSET = -86400
 -- the global cooldown spell id
 local GCD_SPELL_ID = 61304
 
--- how much of a buffer we give finish effets (in seconds)
-local FINISH_EFFECT_BUFFER = -0.3
+-- how long after a cooldown ends its finish effect can play (in milliseconds)
+local FINISH_EFFECT_BUFFER = 300
 
 -------------------------------------------------------------------------------
 -- Utility Methods
 -------------------------------------------------------------------------------
 
-local IsGCD, GetGCDTimeRemaining
-
 -- gcd tests
 ---@param start number
 ---@param duration number
----@param modRate number
 ---@return boolean
-IsGCD = function (start, duration)
+local function IsGCD(start, duration)
     if not (start > 0 and duration > 0) then
         return false
     end
 
     local gcdStart, gcdDuration, gcdEnabled = GetSpellCooldown(GCD_SPELL_ID)
 
-    return gcdEnabled
+    return gcdEnabled == 1
         and start == gcdStart
         and duration == gcdDuration
-end
-
-GetGCDTimeRemaining = function()
-    local start, duration, enabled = GetSpellCooldown(GCD_SPELL_ID)
-    if (not enabled and start > 0 and duration > 0) then
-        return 0
-    end
-
-    local remain = (start + duration) - GetTime()
-    if remain > 0 then
-        return remain
-    end
-
-    return 0
 end
 
 ---Retrieves the name of the given region. If no name is found, checks ancestors
@@ -122,49 +105,76 @@ function Cooldown:CanShowText()
 end
 
 ---@param self OmniCCCooldown
-function Cooldown:CanShowFinishEffect()
-    if self.noCooldownCount or self._occ_gcd then
+---@param ignoreRemainingTime boolean? Check eligibility before scheduling an effect.
+---@param gcdEnd number? End of the global cooldown replacing this cooldown.
+function Cooldown:CanShowFinishEffect(ignoreRemainingTime, gcdEnd)
+    if self.noCooldownCount or self._occ_gcd or self._occ_finishPlayed then
         return false
     end
 
-    local duration = self._occ_duration or 0
-    if duration <= 0 then
+    local start, duration = self._occ_start or 0, self._occ_duration or 0
+    if start <= 0 or duration <= 0 then
         return false
     end
 
-    local start = self._occ_start or 0
-    if start <= 0 then
-        return false
-    end
-
-    local remain = (start + duration) - GetTime()
-
-    -- cooldown expired too long ago
-    -- cooldown outside of GCD bounds
-    -- or has time remaining if we're outside of GCD
-    if remain < FINISH_EFFECT_BUFFER or remain > GetGCDTimeRemaining() then
-        return false
-    end
-
-    -- settings checks
-    -- no config, do nothing
     local settings = self._occ_settings
-    if not settings then
+    if not settings or duration < (settings.minEffectDuration or math.huge) then
         return false
     end
 
-    -- not long enough, do nothing
-    if duration < (settings.minEffectDuration or math.huge) then
-        return false
-    end
-
-    -- no effect, do nothing
     local effect = settings.effect or 'none'
     if effect == 'none' then
         return false
     end
 
+    if not ignoreRemainingTime then
+        local now = GetTime()
+        local endTime = start + duration
+        local millisecondsLate = math.floor((now - endTime) * 1000 + 0.5)
+        local millisecondsEarly = math.floor((endTime - math.max(now, gcdEnd or now)) * 1000 + 0.5)
+        if millisecondsLate > FINISH_EFFECT_BUFFER or millisecondsEarly > 0 then
+            return false
+        end
+    end
+
     return true, effect
+end
+
+---@param self OmniCCCooldown
+function Cooldown:CancelFinishTimer()
+    local timer = self._occ_finishTimer
+    if timer then
+        self._occ_finishTimer = nil
+        timer:Cancel()
+    end
+end
+
+---@param self OmniCCCooldown
+function Cooldown:UpdateFinishTimer()
+    local start = self._occ_start or 0
+    local endTime = start + (self._occ_duration or 0)
+    local now = GetTime()
+    if now - start <= MIN_START_OFFSET or not Cooldown.CanShowFinishEffect(self, true) then
+        Cooldown.CancelFinishTimer(self)
+        return
+    end
+
+    if self._occ_finishTimer or endTime <= now then
+        return
+    end
+
+    self._occ_finishTimer = Addon.C_Timer.NewTimer(endTime - now, function(timer)
+        if self._occ_finishTimer ~= timer then
+            return
+        end
+
+        self._occ_finishTimer = nil
+        if GetTime() < endTime then
+            Cooldown.UpdateFinishTimer(self)
+        else
+            Cooldown.OnCooldownDone(self)
+        end
+    end)
 end
 
 ---@param self OmniCCCooldown
@@ -230,7 +240,7 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:UpdateText()
-    if self._occ_show and self:IsVisible() then
+    if self:IsVisible() and Cooldown.CanShowText(self) then
         Cooldown.ShowText(self)
     else
         Cooldown.HideText(self)
@@ -276,20 +286,10 @@ do
 end
 
 ---@param self OmniCCCooldown
-function Cooldown:Refresh(force)
-    if force then
-        self._occ_start = nil
-        self._occ_duration = nil
-    end
-
+function Cooldown:Refresh()
     Cooldown.Initialize(self)
-
-    local start, duration = self._occ_start or 0, self._occ_duration or 0
-    if start == 0 or duration == 0 then
-        Cooldown.SetTimer(self, 0, 0)
-    else
-        Cooldown.SetTimer(self, start / 1000, duration / 1000)
-    end
+    Cooldown.UpdateFinishTimer(self)
+    Cooldown.RequestUpdate(self)
 end
 
 ---@param self OmniCCCooldown
@@ -303,19 +303,21 @@ function Cooldown:SetTimer(start, duration)
         return
     end
 
-    -- attempt to show a finish effect here, because there are cases where a
-    -- cooldown can be ovewritten before it has actually completed
-    Cooldown.TryShowFinishEffect(self)
+    -- A GCD can replace a cooldown just before its scheduled effect.
+    local isGCD = IsGCD(start, duration)
+    local gcdEnd = isGCD and start <= GetTime() and start + duration or nil
+    Cooldown.CancelFinishTimer(self)
+    Cooldown.TryShowFinishEffect(self, gcdEnd)
 
     self._occ_start = start
     self._occ_duration = duration
+    self._occ_finishPlayed = nil
 
-    self._occ_gcd = IsGCD(start, duration)
+    self._occ_gcd = isGCD
     self._occ_kind = Cooldown.GetKind(self)
     self._occ_priority = Cooldown.GetPriority(self)
-    self._occ_show = Cooldown.CanShowText(self)
 
-    Cooldown.RequestUpdate(self)
+    Cooldown.Refresh(self)
 end
 
 ---@param self OmniCCCooldown
@@ -327,24 +329,21 @@ function Cooldown:SetNoCooldownCount(disable, owner)
     if disable then
         if not self.noCooldownCount then
             self.noCooldownCount = owner
-            Cooldown.Refresh(self, true)
+            Cooldown.Refresh(self)
         end
     elseif self.noCooldownCount == owner then
         self.noCooldownCount = nil
-        Cooldown.Refresh(self, true)
+        Cooldown.Refresh(self)
     end
 end
 
 ---@param self OmniCCCooldown
-function Cooldown:TryShowFinishEffect()
-    local show, effect = Cooldown.CanShowFinishEffect(self)
-
-    if show then
+---@param gcdEnd number?
+function Cooldown:TryShowFinishEffect(gcdEnd)
+    local show, effect = Cooldown.CanShowFinishEffect(self, false, gcdEnd)
+    if show and self:IsVisible() then
+        self._occ_finishPlayed = true
         Addon.FX:Run(self, effect)
-
-        -- reset start/duration so that we don't trigger again
-        self._occ_start = 0
-        self._occ_duration = 0
     end
 end
 
@@ -361,11 +360,10 @@ end
 ---@param start number
 ---@param duration number
 function Cooldown:OnSetCooldown(start, duration)
-    if self.noCooldownCount then
+    if self.noCooldownCount and not cooldowns[self] then
         return
     end
 
-    Cooldown.Initialize(self)
     Cooldown.SetTimer(self, start, duration)
 end
 
@@ -390,8 +388,10 @@ end
 ---@param self OmniCCCooldown
 function Cooldown:OnClear()
     if self._occ_start ~= nil then
+        Cooldown.CancelFinishTimer(self)
         self._occ_start = nil
         self._occ_duration = nil
+        self._occ_finishPlayed = nil
 
         Cooldown.HideText(self)
     end
@@ -403,7 +403,7 @@ function Cooldown:UpdateSettings(force)
 
     if force or self._occ_settings ~= newSettings then
         self._occ_settings = newSettings
-        Cooldown.Refresh(self, true)
+        Cooldown.Refresh(self)
         return true
     end
 

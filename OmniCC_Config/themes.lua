@@ -299,7 +299,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, enable)
                                     theme.enableText = enable
-                                    OmniCC.Cooldown:ForAll('Refresh', true)
+                                    OmniCC.Cooldown:ForAll('Refresh')
                                 end
                             },
                             scale = {
@@ -347,7 +347,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.minDuration = val
-                                    OmniCC.Cooldown:ForAll('Refresh', true)
+                                    OmniCC.Cooldown:ForAll('Refresh')
                                 end
                             },
                             maxDuration = {
@@ -364,7 +364,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.maxDuration = val
-                                    OmniCC.Cooldown:ForAll('Refresh', true)
+                                    OmniCC.Cooldown:ForAll('Refresh')
                                 end
                             },
                             mmssThreshold = {
@@ -415,7 +415,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.timerOffset = val
-                                    OmniCC.Cooldown:ForAll('Refresh', true)
+                                    OmniCC.Cooldown:ForAll('Refresh')
                                 end
                             }
                         }
@@ -436,6 +436,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.effect = val
+                                    OmniCC.Cooldown:ForAll('UpdateFinishTimer')
                                 end,
                                 values = getEffectValues
                             },
@@ -452,6 +453,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.minEffectDuration = val
+                                    OmniCC.Cooldown:ForAll('UpdateFinishTimer')
                                 end
                             }
                         }

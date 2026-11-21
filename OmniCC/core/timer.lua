@@ -49,11 +49,9 @@ function Timer:GetOrCreate(cooldown)
     end
 
     local settings = cooldown._occ_settings
-    if settings and settings.timerOffset ~= 0 then
-        duration = duration - (settings.timerOffset/SECOND)
-        if duration <= 0 then
-            return
-        end
+    duration = duration - ((settings and settings.timerOffset or 0) / SECOND)
+    if duration <= 0 then
+        return
     end
 
     local endTime = (start + duration) * SECOND
@@ -75,13 +73,18 @@ function Timer:GetOrCreate(cooldown)
         timer.kind = kind
         timer.settings = settings
         timer.subscribers = {}
-        timer.callback = function() timer:Update(key) end
-        timer:Update(key)
+        local function update()
+            if timer.callback == update then
+                timer:Update(key)
+            end
+        end
 
+        timer.callback = update
         active[key] = timer
+        timer:Update(key)
     end
 
-    return timer
+    return timer.key and timer or nil
 end
 
 function Timer:Destroy()
@@ -90,6 +93,7 @@ function Timer:Destroy()
     end
 
     active[self.key] = nil
+    self.key = nil
 
     -- clear subscribers
     for subscriber in pairs(self.subscribers) do
@@ -98,7 +102,7 @@ function Timer:Destroy()
 
     -- reset fields
     self.endTime = nil
-    self.key = nil
+    self.callback = nil
     self.kind = nil
     self.settings = nil
     self.state = nil
@@ -122,7 +126,6 @@ function Timer:Update(key)
 
     local remain = (self.endTime or 0) - (GetTime() * SECOND)
     if remain <= 0 then
-        self.finished = true
         self:Destroy()
         return
     end
@@ -209,12 +212,7 @@ function Timer:GetTimerText(remain)
         local seconds = (remain + HALF_SECOND) - (remain + HALF_SECOND) % SECOND
 
         local sleep = remain - max(seconds - HALF_SECOND, tenthsThreshold)
-
-        if seconds > 0 then
-            return L.SecondsFormat:format(seconds / SECOND), sleep
-        end
-
-        return '', sleep
+        return L.SecondsFormat:format(seconds / SECOND), sleep
     elseif remain < mmSSThreshold then
         -- MM:SS
         local seconds = (remain + HALF_SECOND) - (remain + HALF_SECOND) % SECOND

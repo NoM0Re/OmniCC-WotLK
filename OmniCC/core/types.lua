@@ -14,6 +14,7 @@
 ---@field mmSSDuration number?
 ---@field scaleText boolean?
 ---@field tenthsDuration number?
+---@field timerOffset number?
 ---@field textStyles { [string]: OmniCCTextStyle }
 ---@field xOff number
 ---@field yOff number
@@ -21,20 +22,20 @@
 ---@class OmniCCCooldown: Cooldown
 ---@field noCooldownCount Frame|boolean|nil?
 ---@field _occ_duration number?
+---@field _occ_finishPlayed true?
+---@field _occ_finishTimer { Cancel: fun(self: table) }?
 ---@field _occ_gcd boolean?
 ---@field _occ_kind OmniCCCooldownKind
 ---@field _occ_modRate number?
 ---@field _occ_priority OmniCCCooldownPriority
 ---@field _occ_settings OmniCCCooldownSettings?
 ---@field _occ_settings_force OmniCCCooldownSettings?
----@field _occ_show boolean?
 ---@field _occ_start number?
 ---@field _occ_display OmniCCDisplay?
 
 ---@class OmniCCTimer
----@field callback function
+---@field callback function?
 ---@field endTime number?
----@field finished true|nil
 ---@field key string?
 ---@field kind OmniCCCooldownKind?
 ---@field settings OmniCCCooldownSettings?

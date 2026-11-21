@@ -104,10 +104,6 @@ end
 ---@param timer OmniCCTimer
 function Display:OnTimerDestroyed(timer)
     if self.timer == timer then
-        if timer.finished and self.activeCooldown then
-            Addon.Cooldown.TryShowFinishEffect(self.activeCooldown)
-        end
-
         self:RemoveCooldown(self.activeCooldown)
     end
 end
@@ -151,6 +147,18 @@ end
 
 function Display:UpdateActiveCooldown()
     local cooldown = self:GetCooldownWithHighestPriority()
+    local timer
+
+    while cooldown do
+        timer = Addon.Timer:GetOrCreate(cooldown)
+        if timer then
+            break
+        end
+
+        -- Its text has already expired, possibly before the cooldown itself.
+        self.cooldowns[cooldown] = nil
+        cooldown = self:GetCooldownWithHighestPriority()
+    end
 
     if self.activeCooldown ~= cooldown then
         self.activeCooldown = cooldown
@@ -164,16 +172,15 @@ function Display:UpdateActiveCooldown()
             self:SetSize(cooldown:GetSize())
 
             -- hook to keep size in sync when the cooldown resizes
-            if not self._occ_hookedSize then
+            if not cooldown._occ_hookedSize then
                 cooldown:HookScript('OnSizeChanged', function(cd, w, h)
-                    if self and self.SetSize then
-                        self:SetSize(w, h)
-                        if self.UpdateSize then
-                            self:UpdateSize()
-                        end
+                    local display = cd._occ_display
+                    if display and display.activeCooldown == cd then
+                        display:SetSize(w, h)
+                        display:UpdateSize()
                     end
                 end)
-                self._occ_hookedSize = true
+                cooldown._occ_hookedSize = true
             end
 
             self:CalculateSizeRatio()
@@ -184,15 +191,19 @@ function Display:UpdateActiveCooldown()
 
     -- always try to update the timer here
     -- as the active cooldown's duration may have changed
-    self:UpdateTimer()
+    self:UpdateTimer(timer)
 end
 
-function Display:UpdateTimer()
-    local oldTimer = self.timer and self.timer
-    local oldTimerKey = oldTimer and oldTimer.key
+---@param newTimer OmniCCTimer?
+function Display:UpdateTimer(newTimer)
+    if not newTimer and self.activeCooldown then
+        return self:UpdateActiveCooldown()
+    end
 
-    ---@type OmniCCTimer?
-    local newTimer = self.activeCooldown and Addon.Timer:GetOrCreate(self.activeCooldown)
+    local oldTimer = self.timer
+    local oldTimerKey = oldTimer and oldTimer.key
+    local oldSettings = oldTimer and oldTimer.settings
+
     local newTimerKey = newTimer and newTimer.key
 
     -- update subscription if we're watching a different timer
@@ -212,6 +223,10 @@ function Display:UpdateTimer()
         if newTimerKey ~= oldTimerKey then
             self:OnTimerTextUpdated(newTimer, newTimer.text)
             self:OnTimerStateUpdated(newTimer, newTimer.state)
+            if oldSettings ~= newTimer.settings then
+                self:CalculateSizeRatio()
+                self:UpdateCooldownText()
+            end
             self:Show()
         end
 
